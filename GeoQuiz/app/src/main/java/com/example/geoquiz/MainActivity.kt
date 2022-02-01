@@ -12,7 +12,9 @@ import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.os.bundleOf
 import com.example.geoquiz.databinding.ActivityMainBinding
+import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,6 +22,20 @@ class MainActivity : AppCompatActivity() {
     var listKey: MutableList<Int> = mutableListOf()
     var num:Int = 0
     var res: Int = 0
+    var count: Int = 1
+    var list: HashMap<Int, Pair<String, String>> = hashMapOf(
+        1 to Pair("Is london in England", "true"),
+        2 to Pair("Is berlin in Germany", "true"),
+        3 to Pair("Is paris in spain", "false"),
+        4 to Pair("Is alaska in canada", "false"),
+        5 to Pair("Is texas in USA", "true"),
+        6 to Pair("Is Rio in Brazil", "true"),
+        7 to Pair("Is Montevideo A in czech", "false"),
+        8 to Pair("Is sydney in australia", "true"),
+        9 to Pair("Is prague in austria", "false"),
+        10 to Pair("Is Buenos Aires in Argentine", "true"),
+        11 to Pair("null", "true"),
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,21 +45,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
-        var list: HashMap<Int, Pair<String, String>> = hashMapOf()
-        list[1] = Pair("Is london in England", "true")
-        list[2] = Pair("Is berlin in Germany", "true")
-        list[3] = Pair("Is paris in spain", "false")
-        list[4] = Pair("Is alaska in canada", "false")
-        list[5] = Pair("Is texas in USA", "true")
-        list[6] = Pair("Is texas in USA", "true")
-        list[7] = Pair("Is texas in USA", "true")
-        list[8] = Pair("Is texas in USA", "true")
-        list[9] = Pair("Is texas in USA", "true")
-        list[10] = Pair("Is texas in USA", "true")
-        list[11] = Pair("f", "d")
-        var count: Int = 1
-
         binding.tvQuestions.text = list[count]?.first
+
+        disBtn(listKey,list)
 
         binding.btnNext.setOnClickListener {
             count++
@@ -52,35 +56,18 @@ class MainActivity : AppCompatActivity() {
             if (count >= list.size-1) {
                 binding.btnNext.isEnabled = false
             }
+            disBtn(listKey,list)
         }
         binding.btnPerv.setOnClickListener {
             var num1:Int = 0
             count--
             binding.tvQuestions.text = list[count]?.first.toString()
-            if (count == 1) {
+            if (count < 2) {
                 binding.btnPerv.isEnabled = false
             } else {
                 binding.btnNext.isEnabled = true
             }
-            if (listKey.isNotEmpty()){
-                for (i in 0 until listKey.size){
-                    if (list.keys.equals(listKey[i])){
-                        list[listKey[i]]
-                        binding.btnTrue.isEnabled = false
-                        binding.btnFalse.isEnabled = false
-                        Toast.makeText(this,"Cheating is Wrong", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }else{
-                binding.btnTrue.isEnabled = true
-                binding.btnFalse.isEnabled = true
-            }
-//            if (num1 > 0){
-//                binding.btnTrue.isEnabled = false
-//                binding.btnFalse.isEnabled = false
-//                Toast.makeText(this,"Cheating is Wrong", Toast.LENGTH_SHORT).show()
-//            }
-            Log.d(num1.toString(),"num1")
+            disBtn(listKey,list)
         }
 
         binding.btnFalse.setOnClickListener {
@@ -113,39 +100,11 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "InCorrect", Toast.LENGTH_SHORT).show()
             }
         }
-
-
-//        val contract = object :ActivityResultContract<String,String>() {
-//            override fun createIntent(context: Context, input: String?): Intent {
-//                return Intent(this@MainActivity, CheatActivity::class.java).apply {
-//                    putExtra("DATA", binding.tvQuestions.text.toString())
-//                }
-//            }
-//
-//            override fun parseResult(resultCode: Int, intent: Intent?): String {
-//                var result: String = intent?.getStringExtra("Result") ?: "Null"
-//                return result.toString()
-//            }
-//        }
-//
-//        val activityResultLauncher =  registerForActivityResult(contract ,object :ActivityResultCallback<String>{
-//            override fun onActivityResult(result: String?) {
-//                result.toString()
-//            }
-//
-//        })
-//       val resultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result:ActivityResult? ->
-//           if (result?.resultCode == Activity.RESULT_OK){
-//               binding.tvQuestions.text.toString()
-//           }
-//       }
         binding.btnCheat.setOnClickListener {
+            listKey.add(count)
             var I = Intent(Intent(this, CheatActivity::class.java))
             I.putExtra("DATA", binding.tvQuestions.text.toString())
             startActivityForResult(I,2000)
-//            startActivity(I)
-//            activityResultLauncher.launch("DATA")
-//            resultContract.launch(I)
         }
 
     }
@@ -158,6 +117,35 @@ class MainActivity : AppCompatActivity() {
             listKey.add(res)
 
         }
+    }
+    private fun disBtn(list: MutableList<Int> , listKey:HashMap<Int,Pair<String,String>>){
+        for (i in list.indices){
+            if (list.isNotEmpty()){
+                if (listKey[list[i]]?.first == binding.tvQuestions.text){
+                    binding.btnFalse.isEnabled = false
+                    binding.btnTrue.isEnabled = false
+                }else{
+                    binding.btnFalse.isEnabled = true
+                    binding.btnTrue.isEnabled = true
+                }
+            }
+        }
+        if (list.isEmpty()){
+            binding.btnFalse.isEnabled = true
+            binding.btnTrue.isEnabled = true
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("count" , count)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        count = savedInstanceState.get("count") as Int
+        binding.tvQuestions.text = list[count]?.first
+//        binding.btnPerv.isEnabled = true
     }
 
 }
