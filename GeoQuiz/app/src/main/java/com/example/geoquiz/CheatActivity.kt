@@ -28,7 +28,12 @@ class CheatActivity : AppCompatActivity() {
         list[3] = Pair("Is paris in spain", "false")
         list[4] = Pair("Is alaska in canada", "false")
         list[5] = Pair("Is texas in USA", "true")
-        list[6] = Pair("f", "d")
+        list[6] = Pair("Is Rio in Brazil", "true")
+        list[7] = Pair("Is Montevideo A in czech", "false")
+        list[8] = Pair("Is sydney in australia", "true")
+        list[9] = Pair("Is prague in austria", "false")
+        list[10] = Pair("Is Buenos Aires in Argentine", "true")
+        list[11] = Pair("null", "true")
 
         var getData = intent.getStringExtra("DATA")
 
